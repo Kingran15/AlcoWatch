@@ -28,6 +28,42 @@ Future<T> showCustomDialog<T>(BuildContext context, Widget dialog) {
   return showCupertinoDialog<T>(context: context, builder: (context) => dialog, barrierDismissible: true);
 }
 
+String rawPhoneNumber(String number) {
+  String raw = "";
+  Set<String> digits = {"0","1","2","3","4","5","6","7","8","9"};
+
+  for(int i = 0; i < number.length; i++) {
+    String digit = number.substring(i, i+1);
+    if(digits.contains(digit)) {
+      raw += digit;
+    }
+  }
+
+  return raw;
+}
+
 Future<T> showModalPicker<T>(BuildContext context, Widget picker) {
   return showCupertinoModalPopup<T>(context: context, semanticsDismissible: true, builder: (context) => picker);
+}
+
+String displayTime(int hour, int minute) {
+  String extra = " AM";
+  if(hour >= 12) {
+    extra = " PM";
+    if(hour != 12) {
+      hour -= 12;
+    }
+  } else if(hour == 0) {
+    hour = 12;
+  }
+
+  return hour.toString() + ":" + zeroPad(minute.toString(),2) + extra;
+}
+
+String zeroPad(String s, int digits) {
+  while(s.characters.length < digits) {
+    s = "0" + s;
+  }
+
+  return s;
 }

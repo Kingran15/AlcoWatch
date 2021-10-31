@@ -1,6 +1,8 @@
 import 'package:drunk_proj/constants.dart';
 import 'package:flutter/cupertino.dart';
 
+import 'constants.dart';
+
 class CustomText extends StatelessWidget {
 
   final String text;
@@ -76,14 +78,25 @@ class CustomTextField extends StatefulWidget {
 
   final TextEditingController controller;
   final String placeholder;
+  final bool isNumber;
 
-  CustomTextField({this.controller, this.placeholder});
+  CustomTextField({this.controller, this.placeholder, this.isNumber});
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  bool isNumber;
+
+  @override
+  void initState() {
+    if(widget.isNumber == null){
+      isNumber = false;
+    } else {
+      isNumber = widget.isNumber;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +106,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         CupertinoTextField(
           cursorColor: CupertinoTheme.of(context).primaryColor,
           controller: widget.controller,
+          autocorrect: false,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           style: TextStyle(
             fontSize: 20,
           ),
@@ -172,6 +187,167 @@ class CustomDialog extends StatelessWidget {
       color: dark,
       size: 25,
     );
+  }
+
+}
+
+class MemoryButton extends StatefulWidget {
+  final int index;
+  final IconData icon;
+
+  const MemoryButton(this.index, this.icon, {Key key}) : super(key: key);
+
+  @override
+  _MemoryButtonState createState() => _MemoryButtonState();
+}
+
+class _MemoryButtonState extends State<MemoryButton> {
+  bool pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    pressed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 70,
+      height: 70,
+      child: Icon(
+        widget.icon,
+        color: black,
+      ),
+      decoration: BoxDecoration(
+        color: pressed ? blue : lightGray,
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+
+}
+
+class InteractiveMemoryButton extends StatefulWidget {
+  final int index;
+  final IconData icon;
+  final Function pressAlert;
+
+  const InteractiveMemoryButton(this.index, this.icon, this.pressAlert, {Key key}) : super(key: key);
+
+  @override
+  _InteractiveMemoryButtonState createState() => _InteractiveMemoryButtonState();
+}
+
+class _InteractiveMemoryButtonState extends State<InteractiveMemoryButton> {
+  bool pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    pressed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 70,
+      child: CupertinoButton(
+        color: pressed ? blue : lightGray,
+        pressedOpacity: 1,
+        minSize: 70,
+        onPressed: () => _pressAction(),
+        child: const Text(
+          ""
+        ),
+      ),
+    );
+  }
+
+  void _pressAction() {
+    if(widget.index >= 0) {
+      widget.pressAlert(widget.index);
+      setState(() => pressed = !pressed);
+    }
+  }
+}
+
+class AnimatedTimer extends StatefulWidget {
+  final Function onComplete;
+
+  const AnimatedTimer(this.onComplete, {Key key}) : super(key: key);
+
+  @override
+  _AnimatedTimerState createState() => _AnimatedTimerState();
+}
+
+class _AnimatedTimerState extends State<AnimatedTimer> with TickerProviderStateMixin{
+  AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 15),
+    );
+    controller.forward(from: 0);
+    controller.addStatusListener((status) {
+      if(status == AnimationStatus.completed) {
+        controller.forward(from: 0);
+        widget.onComplete();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: AnimatedTimerPainter(
+            animation: controller,
+            bgColor: background,
+            color: darkGreen,
+          )
+        );
+      }
+    );
+  }
+
+}
+
+class AnimatedTimerPainter extends CustomPainter {
+  AnimatedTimerPainter({
+    this.animation,
+    this.bgColor,
+    this.color,
+  }) : super(repaint: animation);
+
+  final Animation<double> animation;
+  final Color bgColor, color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = bgColor
+      ..strokeWidth = 20.0
+      ..strokeCap = StrokeCap.butt
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawLine(size.topLeft(Offset.zero), size.topRight(Offset.zero), paint);
+    paint.color = color;
+    double progress = 1.0 - animation.value;
+    canvas.drawLine(size.topLeft(Offset.zero),
+       Offset(progress * size.width, size.topRight(Offset.zero).dy), paint);
+  }
+
+  @override
+  bool shouldRepaint(AnimatedTimerPainter oldDelegate) {
+    return animation.value != oldDelegate.animation.value ||
+        color != oldDelegate.color ||
+        bgColor != oldDelegate.bgColor;
   }
 
 }
