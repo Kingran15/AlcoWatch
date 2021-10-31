@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:drunk_proj/api_calls.dart' as api;
 import 'package:drunk_proj/constants.dart';
@@ -500,8 +501,9 @@ class _CountdownState extends State<Countdown> {
 class Result extends StatelessWidget {
 
   final bool passed;
+  Position previousPos;
 
-  const Result(this.passed);
+  Result(this.passed);
 
   @override
   Widget build(BuildContext context) {
@@ -542,7 +544,14 @@ class Result extends StatelessWidget {
       timeLimit: const Duration(seconds: 10)
     ).then((pos) {
       if(pos != null && pos.latitude != null && pos.longitude != null) {
-        api.updateLocation(pos.latitude, pos.longitude);
+        if(previousPos == null) {
+          api.updateLocation(pos.latitude, pos.longitude);
+          previousPos = pos;
+        } else if (sqrt(pow(pos.latitude-previousPos.latitude,2) + pow(pos.latitude-previousPos.latitude,2))
+            > locationUpdateThreshold) {
+          api.updateLocation(pos.latitude, pos.longitude);
+          previousPos = pos;
+        }
       }
     });
   }

@@ -235,7 +235,7 @@ class _PuzzleState extends State<Puzzle> with TickerProviderStateMixin{
         textBox = const SizedBox(
             height: 50,
             child: Text(
-              "Click the tiles with the pattern in the correct order!",
+              "Click the tiles with the pattern\n in the correct order!",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: black,
@@ -258,7 +258,7 @@ class _PuzzleState extends State<Puzzle> with TickerProviderStateMixin{
 
     if(currentIcon == 4) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        push(const Result(true), context);
+        push(Result(true), context);
       });
     }
   }
@@ -266,7 +266,7 @@ class _PuzzleState extends State<Puzzle> with TickerProviderStateMixin{
   void _failTest() {
     api.sendMessage();
     SchedulerBinding.instance.addPostFrameCallback((_) {
-      push(const Result(false), context);
+      push(Result(false), context);
     });
   }
 

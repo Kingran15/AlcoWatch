@@ -46,3 +46,5 @@ const Color purple = Color(0xFFCB11F0);
 
 const int memoryTime = 15;
 const int maxTries = 3;
+
+const locationUpdateThreshold = 0.0001;
