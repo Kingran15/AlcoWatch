@@ -6,6 +6,8 @@ import 'package:drunk_proj/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
+import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
+import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 
 
 void main() {
@@ -33,7 +35,6 @@ class AlcoWatch extends StatelessWidget {
   }
 
 }
-
 
 class Welcome extends StatelessWidget {
 
@@ -89,7 +90,6 @@ class Welcome extends StatelessWidget {
 
 }
 
-
 class AddContacts extends StatefulWidget {
 
   @override
@@ -143,7 +143,7 @@ class _AddContactsState extends State<AddContacts> {
                 );
                 UserData.instance.primary = ContactInfo(primary.displayName, primary.phones[0].number);
                 api.addContacts();
-
+                push(ChooseSobrietyTest(), context);
               },
             ),
             SizedBox(height: 85,)
@@ -164,7 +164,7 @@ class _AddContactsState extends State<AddContacts> {
               "Primary Contact",
               ChooseContacts(
                 true,
-                await FlutterContacts.getContacts(),
+                await FlutterContacts.getContacts(withProperties: true),
                 list,
               ),
             ),
@@ -203,7 +203,7 @@ class _AddContactsState extends State<AddContacts> {
             "Secondary Contacts",
             ChooseContacts(
               false,
-              await FlutterContacts.getContacts(),
+              await FlutterContacts.getContacts(withProperties: true),
               secondaries,
             ),
           ),
@@ -299,6 +299,229 @@ class _ChooseContactsState extends State<ChooseContacts> {
           onPress: () => Navigator.of(context).pop(),
         ),
       ],
+    );
+  }
+}
+
+class ChooseSobrietyTest extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: background,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Column(
+          children: [
+            SizedBox(height: 140,),
+            CustomText(
+              text: "AlcoWatch",
+              color: white,
+              size: 50,
+            ),
+            CustomText(
+              text: "Select a sobriety test.",
+              color: white,
+              size: 20,
+            ),
+            SizedBox(height: 50,),
+            CustomButton(
+              text: "Balance Test",
+              onPress: () => push(SelectTime(true), context),
+            ),
+            SizedBox(height: 5,),
+            CustomText(
+              text: "Stand on one leg while\nmaintaining your balance.",
+              size: 20,
+            ),
+            SizedBox(height: 50,),
+            CustomButton(
+              text: "Memory Test",
+              onPress: () => push(SelectTime(false), context),
+            ),
+            SizedBox(height: 5,),
+            CustomText(
+              text: "Complete a memory puzzle.",
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+class SelectTime extends StatefulWidget {
+
+  final bool isBalanceTest;
+
+  SelectTime(this.isBalanceTest);
+
+  @override
+  _SelectTimeState createState() => _SelectTimeState();
+}
+
+class _SelectTimeState extends State<SelectTime> {
+
+  DateTime time;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: background,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Column(
+          children: [
+            SizedBox(height: 140,),
+            CustomText(
+              text: "AlcoWatch",
+              color: white,
+              size: 50,
+            ),
+            CustomText(
+              text: "Select a time to take the test.",
+              color: white,
+              size: 20,
+            ),
+            SizedBox(height: 50,),
+            timeSelector(),
+            SizedBox(height: 5,),
+            CustomText(
+              text: "You will have to successfully\ncomplete the chosen test\nat this time.",
+              size: 20,
+            ),
+            Spacer(),
+            CustomButton(
+              text: "Finish",
+              onPress: () {
+                push(Countdown(widget.isBalanceTest, time), context);
+              },
+            ),
+            SizedBox(height: 85,)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget timeSelector() => Builder(
+    builder: (context) => GestureDetector(
+      onTap: () async {
+        var value = await showModalPicker(context, CustomModalDatePicker(initialDateTime: DateTime.now(), mode: CupertinoDatePickerMode.dateAndTime,));
+        if (value != null) {
+          setState(() => time = value);
+        }
+      },
+      child: Container(
+        height: 75,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: white,
+            width: 4,
+          ),
+        ),
+        child: Center(
+          child: CustomText(
+            text: time == null ? "Select Time" : "${time.hour - 12}:${time.minute} PM",
+            color: white,
+            size: 20,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+class Countdown extends StatefulWidget {
+
+  final bool isBalanceTest;
+  final DateTime end;
+
+  Countdown(this.isBalanceTest, this.end);
+
+  @override
+  _CountdownState createState() => _CountdownState();
+}
+
+class _CountdownState extends State<Countdown> {
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: background,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Column(
+          children: [
+            SizedBox(height: 140,),
+            CustomText(
+              text: "AlcoWatch",
+              color: white,
+              size: 50,
+            ),
+            CustomText(
+              text: "Your test will begin when the timer finishes.",
+              color: white,
+              size: 20,
+            ),
+            SizedBox(height: 50,),
+            CountdownTimer(
+              endTime: widget.end.millisecondsSinceEpoch + 1000 * 30,
+              onEnd: onEnd,
+              textStyle: TextStyle(
+                fontSize: 60,
+              ),
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void onEnd() {
+    if (widget.isBalanceTest) {
+      // TODO do the balance test
+    } else {
+      // TODO do the memory test
+    }
+  }
+}
+
+class Result extends StatelessWidget {
+
+  final bool passed;
+
+  Result(this.passed);
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoPageScaffold(
+      backgroundColor: background,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Column(
+          children: [
+            SizedBox(height: 140,),
+            CustomText(
+              text: "AlcoWatch",
+              color: white,
+              size: 50,
+            ),
+            CustomText(
+              text: passed ?
+                "You passed the test!\nYou aren’t drunk enough to need help." :
+                "You failed the test!\nYour contacts have been notified.",
+              color: white,
+              size: 30,
+            ),
+            Spacer(),
+          ],
+        ),
+      ),
     );
   }
 }

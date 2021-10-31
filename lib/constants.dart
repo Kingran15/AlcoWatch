@@ -29,6 +29,11 @@ final textTheme = CupertinoTextThemeData(
     fontWeight: FontWeight.w700,
     fontSize: 40,
   ),
+  dateTimePickerTextStyle: GoogleFonts.poppins(
+    color: dark,
+    fontWeight: FontWeight.w700,
+    fontSize: 22,
+  ),
 );
 const Color canvas = white;
 const Color black = Color(0xFF000000);

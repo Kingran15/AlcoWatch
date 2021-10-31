@@ -283,3 +283,61 @@ class AnimatedTimerPainter extends CustomPainter {
   }
 
 }
+
+class CustomModalDatePicker extends StatefulWidget {
+
+  final DateTime initialDateTime;
+  final CupertinoDatePickerMode mode;
+
+  CustomModalDatePicker({DateTime initialDateTime, this.mode = CupertinoDatePickerMode.dateAndTime})
+      : initialDateTime = initialDateTime ?? DateTime.now();
+
+  @override
+  _CustomModalDatePickerState createState() => _CustomModalDatePickerState();
+}
+
+class _CustomModalDatePickerState extends State<CustomModalDatePicker> {
+
+  DateTime dateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    dateTime = widget.initialDateTime;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 290,
+      padding: EdgeInsets.only(top: 6.0),
+      color: white,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Flexible(
+              child: GestureDetector(
+                onTap: () {},
+                child: CupertinoDatePicker(
+                  initialDateTime: widget.initialDateTime,
+                  mode: widget.mode,
+                  onDateTimeChanged: (dt) => dateTime = dt,
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 20),
+              child: CustomButton(
+                text: "Select",
+                onPress: () => Navigator.of(context).pop(dateTime),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

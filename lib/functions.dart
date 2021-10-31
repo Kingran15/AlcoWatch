@@ -41,3 +41,7 @@ String rawPhoneNumber(String number) {
 
   return raw;
 }
+
+Future<T> showModalPicker<T>(BuildContext context, Widget picker) {
+  return showCupertinoModalPopup<T>(context: context, semanticsDismissible: true, builder: (context) => picker);
+}
