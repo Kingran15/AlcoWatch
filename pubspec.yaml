@@ -30,6 +30,7 @@ dependencies:
   flutter:
     sdk: flutter
   sensors_plus: "^1.2.1"
+  blinking_text: "^1.0.1+2"
 
 
   # The following adds the Cupertino Icons font to your application.

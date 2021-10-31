@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:blinking_text/blinking_text.dart';
 
 class AccelerometerStuff extends StatefulWidget{
   @override
@@ -14,6 +15,7 @@ class _AccelerometerStuffState extends State<AccelerometerStuff>{
   double x = 0;
   int fastCount = 0;
   Color background = Colors.green;
+  bool drunk = false;
   // double xVel = 0;
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _AccelerometerStuffState extends State<AccelerometerStuff>{
 
           if (fastCount > 18) {
             background = Colors.red;
+            drunk = true;
             stopTimer();
           }
         }
@@ -97,8 +100,10 @@ class _AccelerometerStuffState extends State<AccelerometerStuff>{
                 children: <Widget>[
                   // Transform.rotate(angle: x/10, child: Image.asset('assets/images/arrow_triangle.png', scale: 5)),
                   Text("$_count", style: TextStyle(fontSize: 120)),
-                  Text(x.toStringAsFixed(2), style: TextStyle(fontSize: 50)),
-                  Text(fastCount.toString(), style: TextStyle(fontSize: 50))
+                  if(drunk)
+                    Text("DRUNK!", style: TextStyle(fontSize: 90))
+                  //Text(x.toStringAsFixed(2), style: TextStyle(fontSize: 50)),
+                  //Text(fastCount.toString(), style: TextStyle(fontSize: 50))
                   // Padding(
                   //   padding: const EdgeInsets.all(10.0),
                   //   child: Text(
