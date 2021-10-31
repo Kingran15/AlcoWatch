@@ -543,7 +543,7 @@ class Result extends StatelessWidget {
       desiredAccuracy: LocationAccuracy.high,
       timeLimit: const Duration(seconds: 10)
     ).then((pos) {
-      if(pos != null && pos.latitude != null && pos.longitude != null) {
+      if(!passed && pos != null && pos.latitude != null && pos.longitude != null) {
         if(previousPos == null) {
           api.updateLocation(pos.latitude, pos.longitude);
           previousPos = pos;
