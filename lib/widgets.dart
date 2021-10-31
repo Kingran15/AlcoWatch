@@ -79,14 +79,25 @@ class CustomTextField extends StatefulWidget {
 
   final TextEditingController controller;
   final String placeholder;
+  final bool isNumber;
 
-  CustomTextField({this.controller, this.placeholder});
+  CustomTextField({this.controller, this.placeholder, this.isNumber});
 
   @override
   _CustomTextFieldState createState() => _CustomTextFieldState();
 }
 
 class _CustomTextFieldState extends State<CustomTextField> {
+  bool isNumber;
+
+  @override
+  void initState() {
+    if(widget.isNumber == null){
+      isNumber = false;
+    } else {
+      isNumber = widget.isNumber;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +107,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
         CupertinoTextField(
           cursorColor: CupertinoTheme.of(context).primaryColor,
           controller: widget.controller,
+          autocorrect: false,
+          keyboardType: isNumber ? TextInputType.number : TextInputType.text,
           style: TextStyle(
             fontSize: 20,
           ),
@@ -204,7 +217,7 @@ class _MemoryButtonState extends State<MemoryButton> {
       color: pressed ? blue : lightGray,
       pressedOpacity: 1,
       minSize: 150,
-      onPressed: () => _pressAction(),
+      onPressed: () {},
       child: Icon(
         widget.icon,
         color: black,
@@ -212,15 +225,53 @@ class _MemoryButtonState extends State<MemoryButton> {
     );
   }
 
+}
+
+class InteractiveMemoryButton extends StatefulWidget {
+  final int index;
+  final IconData icon;
+  final Function pressAlert;
+
+  const InteractiveMemoryButton(this.index, this.icon, this.pressAlert, {Key key}) : super(key: key);
+
+  @override
+  _InteractiveMemoryButtonState createState() => _InteractiveMemoryButtonState();
+}
+
+class _InteractiveMemoryButtonState extends State<InteractiveMemoryButton> {
+  bool pressed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    pressed = false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      color: pressed ? blue : lightGray,
+      pressedOpacity: 1,
+      minSize: 150,
+      onPressed: () => _pressAction(),
+      child: const Text(
+        ""
+      ),
+    );
+  }
+
   void _pressAction() {
-    if(widget.index > 0) {
+    if(widget.index >= 0) {
+      widget.pressAlert(widget.index);
       setState(() => pressed = !pressed);
     }
   }
 }
 
 class AnimatedTimer extends StatefulWidget {
-  const AnimatedTimer({Key key}) : super(key: key);
+  final Function onComplete;
+
+  const AnimatedTimer(this.onComplete, {Key key}) : super(key: key);
 
   @override
   _AnimatedTimerState createState() => _AnimatedTimerState();
@@ -234,18 +285,31 @@ class _AnimatedTimerState extends State<AnimatedTimer> with TickerProviderStateM
     super.initState();
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 30),
+      duration: const Duration(seconds: 15),
     );
+    controller.forward(from: 0);
+    controller.addStatusListener((status) {
+      if(status == AnimationStatus.completed) {
+        controller.forward(from: 0);
+        widget.onComplete();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-        painter: AnimatedTimerPainter(
-          animation: controller,
-          backgroundColor: background,
-          color: canvas,
-        ));
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return CustomPaint(
+          painter: AnimatedTimerPainter(
+            animation: controller,
+            bgColor: background,
+            color: darkGreen,
+          )
+        );
+      }
+    );
   }
 
 }
@@ -253,18 +317,18 @@ class _AnimatedTimerState extends State<AnimatedTimer> with TickerProviderStateM
 class AnimatedTimerPainter extends CustomPainter {
   AnimatedTimerPainter({
     this.animation,
-    this.backgroundColor,
+    this.bgColor,
     this.color,
   }) : super(repaint: animation);
 
   final Animation<double> animation;
-  final Color backgroundColor, color;
+  final Color bgColor, color;
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = backgroundColor
-      ..strokeWidth = 10.0
+      ..color = bgColor
+      ..strokeWidth = 20.0
       ..strokeCap = StrokeCap.butt
       ..style = PaintingStyle.stroke;
 
@@ -272,14 +336,14 @@ class AnimatedTimerPainter extends CustomPainter {
     paint.color = color;
     double progress = 1.0 - animation.value;
     canvas.drawLine(size.topLeft(Offset.zero),
-        Offset(progress * size.width, size.topRight(Offset.zero).dy), paint);
+       Offset(progress * size.width, size.topRight(Offset.zero).dy), paint);
   }
 
   @override
-  bool shouldRepaint(AnimatedTimerPainter old) {
-    return animation.value != old.animation.value ||
-        color != old.color ||
-        backgroundColor != old.backgroundColor;
+  bool shouldRepaint(AnimatedTimerPainter oldDelegate) {
+    return animation.value != oldDelegate.animation.value ||
+        color != oldDelegate.color ||
+        bgColor != oldDelegate.bgColor;
   }
 
 }

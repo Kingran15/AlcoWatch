@@ -1,13 +1,17 @@
+import 'dart:async';
+
 import 'package:drunk_proj/api_calls.dart' as api;
 import 'package:drunk_proj/constants.dart';
 import 'package:drunk_proj/data.dart';
 import 'package:drunk_proj/functions.dart';
+import 'package:drunk_proj/puzzle.dart';
 import 'package:drunk_proj/widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:geolocator/geolocator.dart';
 
 
 void main() {
@@ -70,6 +74,7 @@ class Welcome extends StatelessWidget {
               CustomTextField(
                 controller: number,
                 placeholder: "Phone Number",
+                isNumber: true,
               ),
               SizedBox(height: 200,),
               CustomButton(
@@ -396,6 +401,7 @@ class _SelectTimeState extends State<SelectTime> {
             CustomButton(
               text: "Finish",
               onPress: () {
+                api.createAlarm(time.millisecond - DateTime.now().millisecondsSinceEpoch);
                 push(Countdown(widget.isBalanceTest, time), context);
               },
             ),
@@ -425,7 +431,7 @@ class _SelectTimeState extends State<SelectTime> {
         ),
         child: Center(
           child: CustomText(
-            text: time == null ? "Select Time" : "${time.hour - 12}:${time.minute} PM",
+            text: time == null ? "Select Time" : displayTime(time.hour, time.minute),
             color: white,
             size: 20,
           ),
@@ -486,7 +492,7 @@ class _CountdownState extends State<Countdown> {
     if (widget.isBalanceTest) {
       // TODO do the balance test
     } else {
-      // TODO do the memory test
+      push(Puzzle(maxTries), context);
     }
   }
 }
@@ -495,10 +501,15 @@ class Result extends StatelessWidget {
 
   final bool passed;
 
-  Result(this.passed);
+  const Result(this.passed);
 
   @override
   Widget build(BuildContext context) {
+    if(!passed) {
+      Timer.periodic(
+          const Duration(seconds: 15), (Timer t) => _sendLocationData());
+    }
+
     return CupertinoPageScaffold(
       backgroundColor: background,
       child: Padding(
@@ -523,5 +534,16 @@ class Result extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _sendLocationData() {
+    Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+      timeLimit: const Duration(seconds: 10)
+    ).then((pos) {
+      if(pos != null && pos.latitude != null && pos.longitude != null) {
+        api.updateLocation(pos.latitude, pos.longitude);
+      }
+    });
   }
 }
