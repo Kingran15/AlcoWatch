@@ -26,4 +26,9 @@ final textTheme = CupertinoTextThemeData(
     fontWeight: FontWeight.w700,
     fontSize: 40,
   ),
+  dateTimePickerTextStyle: GoogleFonts.poppins(
+    color: dark,
+    fontWeight: FontWeight.w700,
+    fontSize: 22,
+  ),
 );

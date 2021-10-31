@@ -27,3 +27,7 @@ Future<T> push<T>(Widget page, BuildContext context) async {
 Future<T> showCustomDialog<T>(BuildContext context, Widget dialog) {
   return showCupertinoDialog<T>(context: context, builder: (context) => dialog, barrierDismissible: true);
 }
+
+Future<T> showModalPicker<T>(BuildContext context, Widget picker) {
+  return showCupertinoModalPopup<T>(context: context, semanticsDismissible: true, builder: (context) => picker);
+}
