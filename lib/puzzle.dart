@@ -13,7 +13,7 @@ class Puzzle extends StatefulWidget {
   CupertinoIcons.star_fill, CupertinoIcons.suit_heart_fill, CupertinoIcons.suit_club_fill, CupertinoIcons.suit_spade_fill,
   CupertinoIcons.suit_diamond_fill, CupertinoIcons.tortoise_fill, CupertinoIcons.wrench_fill];
 
-  Puzzle({Key? key}) : super(key: key);
+  Puzzle({Key key}) : super(key: key);
 
   @override
   _PuzzleState createState() => _PuzzleState();
